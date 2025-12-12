@@ -1,23 +1,21 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import PhotoUploader from './components/PhotoUploader';
 import LayoutSelector from './components/LayoutSelector';
 import PhotoPreview from './components/PhotoPreview';
 import ExportButtons from './components/ExportButtons';
-import { PhotoLayout, PaperSize, calculateLayout } from './types';
+import { PaperSize, calculateLayout } from './types';
 
 export default function Home() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [selectedPaperSize, setSelectedPaperSize] = useState<PaperSize>('letter');
   const [photoCount, setPhotoCount] = useState<number>(10);
-  const [layout, setLayout] = useState<PhotoLayout | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Recalcular layout cuando cambie el tamaño de papel o cantidad de fotos
-  useEffect(() => {
-    const newLayout = calculateLayout(selectedPaperSize, photoCount);
-    setLayout(newLayout);
+  // Calcular layout usando useMemo para evitar cálculos innecesarios
+  const layout = useMemo(() => {
+    return calculateLayout(selectedPaperSize, photoCount);
   }, [selectedPaperSize, photoCount]);
 
   const handlePhotoUpload = (file: File) => {
@@ -31,12 +29,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <svg
                 className="w-6 h-6 text-white"
                 fill="none"
@@ -125,7 +123,7 @@ export default function Home() {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Vista previa
               </h2>
-              <div className="flex items-center justify-center min-h-[500px] bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 overflow-auto max-h-[800px]">
+              <div className="flex items-center justify-center min-h-125 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 overflow-auto max-h-200">
                 {layout ? (
                   <PhotoPreview
                     ref={previewRef}

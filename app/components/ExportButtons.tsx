@@ -37,7 +37,7 @@ export default function ExportButtons({ layout, photoUrl }: ExportButtonsProps) 
 
   const isDisabled = !layout || !photoUrl || isExporting;
 
-  const buttons: { format: ExportFormat; label: string; icon: JSX.Element }[] = [
+  const buttons: { format: ExportFormat; label: string; icon: React.ReactElement }[] = [
     {
       format: 'pdf',
       label: 'Descargar PDF',

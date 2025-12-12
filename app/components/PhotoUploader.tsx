@@ -44,6 +44,7 @@ export default function PhotoUploader({ onPhotoUpload, currentPhoto }: PhotoUplo
         {currentPhoto ? (
           <div className="space-y-4">
             <div className="relative w-48 h-56 mx-auto rounded-lg overflow-hidden shadow-lg bg-gray-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={currentPhoto}
                 alt="Foto cargada"

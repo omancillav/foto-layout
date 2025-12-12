@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { PhotoLayout, PAPER_SIZES, PRINT_DPI, PHOTO_SIZE_INCHES, PHOTO_SPACING } from '../types';
+import { PhotoLayout, PAPER_SIZES, PHOTO_SIZE_INCHES, PHOTO_SPACING } from '../types';
 
 interface PhotoPreviewProps {
   layout: PhotoLayout;
@@ -69,6 +69,7 @@ const PhotoPreview = forwardRef<HTMLDivElement, PhotoPreviewProps>(
                       }}
                     >
                       {photoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={photoUrl}
                           alt={`Foto ${index + 1}`}
