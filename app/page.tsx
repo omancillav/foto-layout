@@ -5,10 +5,12 @@ import PhotoUploader from './components/PhotoUploader';
 import LayoutSelector from './components/LayoutSelector';
 import PhotoPreview from './components/PhotoPreview';
 import ExportButtons from './components/ExportButtons';
+import ImageCropper from './components/ImageCropper';
 import { PaperSize, calculateLayout } from './types';
 
 export default function Home() {
   const [photo, setPhoto] = useState<string | null>(null);
+  const [croppingPhoto, setCroppingPhoto] = useState<string | null>(null);
   const [selectedPaperSize, setSelectedPaperSize] = useState<PaperSize>('letter');
   const [photoCount, setPhotoCount] = useState<number>(10);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -19,13 +21,36 @@ export default function Home() {
   }, [selectedPaperSize, photoCount]);
 
   const handlePhotoUpload = (file: File) => {
-    // Revocar URL anterior si existe
+    // Si ya hay una foto cargada, no la revocamos todavía para permitir cancelar
+    // Crear nueva URL para el recorte
+    const url = URL.createObjectURL(file);
+    setCroppingPhoto(url);
+  };
+
+  const handleCropComplete = (croppedImageUrl: string) => {
+    // Revocar la foto anterior si existe
     if (photo) {
       URL.revokeObjectURL(photo);
     }
-    // Crear nueva URL de preview
-    const url = URL.createObjectURL(file);
-    setPhoto(url);
+    
+    // Si la foto original de recorte ya no se usa (porque tenemos la recortada),
+    // podríamos revocarla, pero el componente ImageCropper usa la URL.
+    // Lo ideal es limpiarla cuando cambiamos de "croppingPhoto".
+    if (croppingPhoto) {
+       // No revocamos croppingPhoto inmediatamente porque ImageCropper podría estar desmontándose
+       // pero en este flujo simple, podemos asumir que ya no la necesitamos.
+       URL.revokeObjectURL(croppingPhoto);
+    }
+
+    setPhoto(croppedImageUrl);
+    setCroppingPhoto(null);
+  };
+
+  const handleCropCancel = () => {
+    if (croppingPhoto) {
+      URL.revokeObjectURL(croppingPhoto);
+    }
+    setCroppingPhoto(null);
   };
 
   return (
@@ -69,6 +94,16 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        
+        {/* Modal de Recorte */}
+        {croppingPhoto && (
+          <ImageCropper
+            imageSrc={croppingPhoto}
+            onCropComplete={handleCropComplete}
+            onCancel={handleCropCancel}
+          />
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Panel Izquierdo - Controles */}
           <div className="space-y-6">
