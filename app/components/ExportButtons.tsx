@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ExportFormat, exportLayout } from '../utils/exportUtils';
-import { PhotoLayout } from '../types';
+import { useState } from "react";
+import { ExportFormat, exportLayout } from "../utils/exportUtils";
+import { PhotoLayout } from "../types";
 
 interface ExportButtonsProps {
   layout: PhotoLayout | null;
@@ -27,8 +27,8 @@ export default function ExportButtons({ layout, photoUrl }: ExportButtonsProps) 
         quality: 0.95,
       });
     } catch (error) {
-      console.error('Error al exportar:', error);
-      alert('Hubo un error al exportar. Por favor intenta de nuevo.');
+      console.error("Error al exportar:", error);
+      alert("Hubo un error al exportar. Por favor intenta de nuevo.");
     } finally {
       setIsExporting(false);
       setExportingFormat(null);
@@ -37,10 +37,13 @@ export default function ExportButtons({ layout, photoUrl }: ExportButtonsProps) 
 
   const isDisabled = !layout || !photoUrl || isExporting;
 
+  // Determinar formato recomendado según el papel
+  const recommendedFormat: ExportFormat = layout?.paperSize === "letter" ? "pdf" : "png";
+
   const buttons: { format: ExportFormat; label: string; icon: React.ReactElement }[] = [
     {
-      format: 'pdf',
-      label: 'Descargar PDF',
+      format: "pdf",
+      label: "Descargar PDF",
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -53,8 +56,8 @@ export default function ExportButtons({ layout, photoUrl }: ExportButtonsProps) 
       ),
     },
     {
-      format: 'png',
-      label: 'Descargar PNG',
+      format: "png",
+      label: "Descargar PNG",
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -70,26 +73,35 @@ export default function ExportButtons({ layout, photoUrl }: ExportButtonsProps) 
 
   return (
     <div className="w-full space-y-4">
-      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Exportar para impresión
-      </h3>
+      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Exportar para impresión</h3>
 
       {/* Mensaje informativo */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           <p className="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-            <strong>¿Qué formato elegir?</strong><br />
+            <strong>¿Qué formato elegir?</strong>
+            <br />
             <span className="text-blue-700 dark:text-blue-300">
-              Usa <strong>PDF</strong> para imprimir en papel carta. 
-              Usa <strong>PNG</strong> para imprimir en papel 4&quot; × 6&quot;.
+              Usa <strong>PDF</strong> para imprimir en papel carta. Usa <strong>PNG</strong> para imprimir en papel
+              4&quot; × 6&quot;.
             </span>
           </p>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {buttons.map(({ format, label, icon }) => (
           <button
@@ -98,29 +110,21 @@ export default function ExportButtons({ layout, photoUrl }: ExportButtonsProps) 
             disabled={isDisabled}
             className={`
               flex items-center justify-center gap-2 px-4 py-3 rounded-lg
-              font-medium transition-all
-              ${isDisabled
-                ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
-                : format === 'pdf'
-                  ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl'
-                  : 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl'
+              font-medium transition-all relative
+              ${
+                isDisabled
+                  ? "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+                  : format === recommendedFormat
+                    ? "bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl ring-2 ring-green-300 dark:ring-green-700"
+                    : format === "pdf"
+                      ? "bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl"
+                      : "bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl"
               }
             `}
           >
             {isExporting && exportingFormat === format ? (
-              <svg
-                className="w-5 h-5 animate-spin"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
+              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path
                   className="opacity-75"
                   fill="currentColor"
@@ -130,16 +134,19 @@ export default function ExportButtons({ layout, photoUrl }: ExportButtonsProps) 
             ) : (
               icon
             )}
-            <span>{isExporting && exportingFormat === format ? 'Generando...' : label}</span>
+            <span>{isExporting && exportingFormat === format ? "Generando..." : label}</span>
+            {!isDisabled && format === recommendedFormat && (
+              <span className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+                ⭐ Recomendado
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {isDisabled && !isExporting && (
         <p className="text-sm text-amber-600 dark:text-amber-400 text-center">
-          {!photoUrl
-            ? 'Sube una foto para poder exportar'
-            : 'Cargando...'}
+          {!photoUrl ? "Sube una foto para poder exportar" : "Cargando..."}
         </p>
       )}
 
@@ -155,4 +162,3 @@ export default function ExportButtons({ layout, photoUrl }: ExportButtonsProps) 
     </div>
   );
 }
-

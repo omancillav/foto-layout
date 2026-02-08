@@ -126,7 +126,12 @@ export async function exportLayout(options: ExportOptions): Promise<void> {
   const { layout, photoUrl, format, quality = 0.95 } = options;
   const paper = PAPER_SIZES[layout.paperSize];
   
-  const timestamp = new Date().toISOString().slice(0, 10);
+  // Generar timestamp único con fecha y hora
+  const now = new Date();
+  const timestamp = now.toISOString()
+    .replace(/T/, '_')
+    .replace(/:/g, '-')
+    .slice(0, 19); // YYYY-MM-DD_HH-MM-SS
   const filename = `fotos-infantiles-${layout.totalPhotosRequested}-${paper.widthCm.toFixed(0)}x${paper.heightCm.toFixed(0)}cm-${timestamp}`;
   
   if (format === 'pdf') {
