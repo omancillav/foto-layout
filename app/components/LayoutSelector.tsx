@@ -45,18 +45,23 @@ export default function LayoutSelector({
   };
 
   // Calcular cuántas fotos caben por hoja
-  const paper = PAPER_SIZES[selectedPaperSize];
-  const photoWInches = PHOTO_SIZE_CM.width / 2.54;
-  const photoHInches = PHOTO_SIZE_CM.height / 2.54;
-  const spacing = 0.08; // espacio entre fotos
-  const margin = 0.15; // margen del papel
-  
-  const availableWidth = paper.width - (margin * 2);
-  const availableHeight = paper.height - (margin * 2);
-  
-  const maxCols = Math.floor((availableWidth + spacing) / (photoWInches + spacing));
-  const maxRows = Math.floor((availableHeight + spacing) / (photoHInches + spacing));
-  const photosPerSheet = maxCols * maxRows;
+  const calculateCapacity = (size: PaperSize) => {
+    const paper = PAPER_SIZES[size];
+    const photoWInches = PHOTO_SIZE_CM.width / 2.54;
+    const photoHInches = PHOTO_SIZE_CM.height / 2.54;
+    const spacing = 0.08;
+    const margin = 0.15;
+    
+    const availableWidth = paper.width - (margin * 2);
+    const availableHeight = paper.height - (margin * 2);
+    
+    const maxCols = Math.floor((availableWidth + spacing) / (photoWInches + spacing));
+    const maxRows = Math.floor((availableHeight + spacing) / (photoHInches + spacing));
+    
+    return { maxCols, maxRows, total: maxCols * maxRows };
+  };
+
+  const { maxCols, maxRows, total: photosPerSheet } = calculateCapacity(selectedPaperSize);
   const sheetsNeeded = Math.ceil(photoCount / photosPerSheet);
 
   return (
@@ -81,7 +86,7 @@ export default function LayoutSelector({
             >
               <span className="block font-medium">{PAPER_SIZES[size].name}</span>
               <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Hasta {photosPerSheet} fotos/hoja
+                Hasta {calculateCapacity(size).total} fotos/hoja
               </span>
             </button>
           ))}

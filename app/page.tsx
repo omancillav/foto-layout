@@ -1,19 +1,50 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import PhotoUploader from './components/PhotoUploader';
 import LayoutSelector from './components/LayoutSelector';
 import PhotoPreview from './components/PhotoPreview';
 import ExportButtons from './components/ExportButtons';
 import ImageCropper from './components/ImageCropper';
-import { PaperSize, calculateLayout } from './types';
+import { PaperSize, calculateLayout, PAPER_SIZES } from './types';
 
 export default function Home() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [croppingPhoto, setCroppingPhoto] = useState<string | null>(null);
   const [selectedPaperSize, setSelectedPaperSize] = useState<PaperSize>('letter');
   const [photoCount, setPhotoCount] = useState<number>(10);
+  const [previewScale, setPreviewScale] = useState(0.5);
   const previewRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Ajustar escala del preview según el tamaño del contenedor
+  useEffect(() => {
+    const calculateScale = () => {
+      if (!containerRef.current) return;
+      
+      // Obtener ancho disponible (restando padding p-4 = 32px)
+      const containerWidth = containerRef.current.clientWidth;
+      const padding = 40; // 32px de padding + 8px de margen de seguridad
+      const availableWidth = containerWidth - padding;
+      
+      const paper = PAPER_SIZES[selectedPaperSize];
+      // 96 DPI es lo que usa PhotoPreview
+      const paperWidthPx = paper.width * 96;
+      
+      // Calcular escala para ajustar al ancho
+      const fitScale = availableWidth / paperWidthPx;
+      
+      // Limitar escala máxima (0.6) y mínima razonable
+      // Usamos 0.95 de fitScale para dar un poco más de aire si es necesario
+      const scale = Math.min(Math.max(fitScale, 0.2), 0.6);
+      
+      setPreviewScale(scale);
+    };
+
+    calculateScale();
+    window.addEventListener('resize', calculateScale);
+    return () => window.removeEventListener('resize', calculateScale);
+  }, [selectedPaperSize]); // Recalcular cuando cambia el tamaño de papel
 
   // Calcular layout usando useMemo para evitar cálculos innecesarios
   const layout = useMemo(() => {
@@ -158,13 +189,16 @@ export default function Home() {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Vista previa
               </h2>
-              <div className="flex items-center justify-center min-h-125 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 overflow-auto max-h-200">
+              <div 
+                ref={containerRef}
+                className="flex items-center justify-center min-h-125 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 overflow-hidden max-h-200"
+              >
                 {layout ? (
                   <PhotoPreview
                     ref={previewRef}
                     layout={layout}
                     photoUrl={photo}
-                    scale={0.5}
+                    scale={previewScale}
                   />
                 ) : (
                   <div className="text-center text-gray-400 dark:text-gray-500">
